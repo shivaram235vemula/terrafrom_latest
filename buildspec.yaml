@@ -29,7 +29,7 @@ phases:
     commands:
       - terraform init
       - terraform plan
-      # - terraform apply -auto-approve # Uncomment only if safe for deployment
+      - terraform apply -auto-approve 
 
 artifacts:
   files:
