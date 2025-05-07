@@ -12,17 +12,24 @@ phases:
   pre_build:
     commands:
       - echo "Fetching AWS credentials..."
-      - export AWS_ACCESS_KEY_ID=$(aws ssm get-parameter --name "user_key" --with-decryption --query "Parameter.Value" --output text)
-      - export AWS_SECRET_ACCESS_KEY=$(aws ssm get-parameter --name "user_key2" --with-decryption --query "Parameter.Value" --output text)
-      - export AWS_DEFAULT_REGION="ap-south-1" 
+      
+      # Fetch AWS credentials from SSM Parameter Store
+      - ACCESS_KEY_ID=$(aws ssm get-parameter --name "user_key" --with-decryption --query "Parameter.Value" --output text)
+      - SECRET_ACCESS_KEY=$(aws ssm get-parameter --name "user_key2" --with-decryption --query "Parameter.Value" --output text)
+      - export AWS_ACCESS_KEY_ID=$ACCESS_KEY_ID
+      - export AWS_SECRET_ACCESS_KEY=$SECRET_ACCESS_KEY
+      - export AWS_DEFAULT_REGION="ap-south-1"
+
+      # Fetch and export Terraform Cloud token
       - echo Logging into Terraform Cloud...
-      - export TFE_TOKEN=$(aws ssm get-parameter --name "/tfe/token" --with-decryption --query "Parameter.Value" --output text)
+      - TFE_TOKEN=$(aws ssm get-parameter --name "/tfe/token" --with-decryption --query "Parameter.Value" --output text)
       - export TF_TOKEN_app_terraform_io=$TFE_TOKEN
+
   build:
     commands:
       - terraform init
       - terraform plan
-      # - terraform apply -auto-approve # Uncomment only in a deploy stage
+      # - terraform apply -auto-approve # Uncomment only if safe for deployment
 
 artifacts:
   files:
